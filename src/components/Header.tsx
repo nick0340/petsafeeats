@@ -1,0 +1,166 @@
+import { useState } from 'react';
+import { Menu, X, PawPrint, Heart, ChevronRight } from 'lucide-react';
+import { useCountry, type CountryCode } from '../utils/countryStore';
+
+interface HeaderProps {
+  onNavigate: (page: string, data?: Record<string, string>) => void;
+  currentPage: string;
+}
+
+export default function Header({ onNavigate, currentPage }: HeaderProps) {
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const { country, setCountry } = useCountry();
+
+  return (
+    <header className="sticky top-0 z-50 bg-white/95 backdrop-blur-md border-b border-slate-100 shadow-sm">
+      <div className="container-main">
+        <div className="flex items-center justify-between h-14 sm:h-16">
+          {/* Logo */}
+          <button
+            onClick={() => onNavigate('home')}
+            className="flex items-center gap-2.5 group cursor-pointer flex-shrink-0"
+            aria-label="PetSafe Eats Home"
+          >
+            <div className="w-9 h-9 sm:w-10 sm:h-10 bg-gradient-to-br from-safe to-brand rounded-xl flex items-center justify-center shadow-md group-hover:shadow-lg transition-all group-hover:scale-105">
+              <PawPrint className="w-[18px] h-[18px] sm:w-5 sm:h-5 text-white" aria-hidden="true" />
+            </div>
+            <div className="flex flex-col justify-center">
+              <span className="text-base sm:text-lg font-bold text-text-primary leading-tight tracking-tight">
+                PetSafe<span className="text-safe">Eats</span>
+              </span>
+              <span className="text-[10px] text-text-muted font-medium -mt-0.5 hidden sm:block">Pet Food Safety Guide</span>
+            </div>
+          </button>
+
+          {/* Desktop Nav — clean: just All Foods */}
+          <nav className="hidden md:flex items-center gap-1" role="navigation" aria-label="Main navigation">
+            <button
+              onClick={() => onNavigate('home')}
+              className={`flex items-center justify-center px-4 py-2 rounded-xl text-sm font-medium transition-all cursor-pointer ${
+                currentPage === 'home'
+                  ? 'bg-brand/10 text-brand'
+                  : 'text-text-secondary hover:text-text-primary hover:bg-slate-50'
+              }`}
+              aria-current={currentPage === 'home' ? 'page' : undefined}
+            >
+              Home
+            </button>
+            <button
+              onClick={() => onNavigate('foods')}
+              className={`flex items-center justify-center px-4 py-2 rounded-xl text-sm font-medium transition-all cursor-pointer ${
+                currentPage === 'foods'
+                  ? 'bg-brand/10 text-brand'
+                  : 'text-text-secondary hover:text-text-primary hover:bg-slate-50'
+              }`}
+              aria-current={currentPage === 'foods' ? 'page' : undefined}
+            >
+              All Foods
+            </button>
+          </nav>
+
+          {/* Right side: CTA + mobile hamburger */}
+          <div className="flex items-center gap-2 sm:gap-3">
+            {/* Country Selector dropdown */}
+            <div className="relative inline-block text-left">
+              <select
+                value={country}
+                onChange={(e) => setCountry(e.target.value as CountryCode)}
+                className="appearance-none bg-slate-50 hover:bg-slate-100 border border-slate-200 text-text-primary pl-2.5 pr-7 py-1.5 rounded-xl text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-brand/30 cursor-pointer shadow-sm transition-all"
+                aria-label="Select emergency hotline region"
+              >
+                <option value="US">🇺🇸 US</option>
+                <option value="UK">🇬🇧 UK</option>
+                <option value="CA">🇨🇦 CA</option>
+                <option value="AU">🇦🇺 AU</option>
+              </select>
+              <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2 text-text-muted">
+                <svg className="h-3 w-3 fill-current" viewBox="0 0 20 20">
+                  <path d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" />
+                </svg>
+              </div>
+            </div>
+
+            <button
+              onClick={() => onNavigate('home')}
+              className="hidden sm:flex items-center justify-center gap-2 bg-gradient-to-r from-brand to-safe text-white px-5 py-2.5 rounded-xl text-sm font-semibold hover:shadow-lg hover:scale-105 transition-all cursor-pointer"
+              aria-label="Save a Pet"
+            >
+              <Heart className="w-4 h-4" aria-hidden="true" />
+              <span>Save a Pet</span>
+            </button>
+            <button
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              className="md:hidden flex items-center justify-center w-9 h-9 rounded-xl hover:bg-slate-50 transition-colors cursor-pointer"
+              aria-expanded={mobileMenuOpen}
+              aria-controls="mobile-menu"
+              aria-label={mobileMenuOpen ? 'Close menu' : 'Open menu'}
+            >
+              {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* Mobile menu — simple links only */}
+      {mobileMenuOpen && (
+        <div
+          id="mobile-menu"
+          className="md:hidden border-t border-slate-100 bg-white animate-slide-down"
+          role="navigation"
+          aria-label="Mobile navigation"
+        >
+          <div className="container-main py-3 space-y-1">
+            {[
+              { label: 'Home', page: 'home' },
+              { label: 'All Foods', page: 'foods' },
+            ].map((item) => (
+              <button
+                key={item.label}
+                onClick={() => { onNavigate(item.page); setMobileMenuOpen(false); }}
+                className={`w-full text-left px-4 py-3 rounded-xl text-sm font-medium transition-all cursor-pointer flex items-center justify-between ${
+                  currentPage === item.page ? 'bg-brand/10 text-brand' : 'text-text-secondary hover:text-text-primary hover:bg-slate-50'
+                }`}
+              >
+                {item.label}
+                <ChevronRight className="w-4 h-4 opacity-40" aria-hidden="true" />
+              </button>
+            ))}
+            
+            {/* Mobile Country Selector */}
+            <div className="px-4 py-3 flex items-center justify-between border-t border-slate-100 mt-2">
+              <span className="text-xs font-semibold text-text-secondary">Hotline Region:</span>
+              <div className="relative inline-block text-left">
+                <select
+                  value={country}
+                  onChange={(e) => setCountry(e.target.value as CountryCode)}
+                  className="appearance-none bg-slate-50 hover:bg-slate-100 border border-slate-200 text-text-primary pl-2.5 pr-7 py-1.5 rounded-xl text-xs font-semibold focus:outline-none cursor-pointer shadow-sm transition-all"
+                  aria-label="Select Country"
+                >
+                  <option value="US">🇺🇸 US</option>
+                  <option value="UK">🇬🇧 UK</option>
+                  <option value="CA">🇨🇦 CA</option>
+                  <option value="AU">🇦🇺 AU</option>
+                </select>
+                <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2 text-text-muted">
+                  <svg className="h-3 w-3 fill-current" viewBox="0 0 20 20">
+                    <path d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" />
+                  </svg>
+                </div>
+              </div>
+            </div>
+
+            <div className="pt-2">
+              <button
+                onClick={() => { onNavigate('home'); setMobileMenuOpen(false); }}
+                className="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-brand to-safe text-white px-4 py-3 rounded-xl text-sm font-semibold cursor-pointer"
+              >
+                <Heart className="w-4 h-4" aria-hidden="true" />
+                Save a Pet
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </header>
+  );
+}
