@@ -1,13 +1,12 @@
+"use client";
+
 import React from 'react';
+import Link from 'next/link';
 import { PawPrint, Heart, Shield, Mail, Phone } from 'lucide-react';
 import { useCountry, type CountryCode } from '../utils/countryStore';
 import AdSlot from './AdSlot';
 
-interface FooterProps {
-  onNavigate: (page: string, data?: Record<string, string>) => void;
-}
-
-export default function Footer({ onNavigate }: FooterProps) {
+export default function Footer() {
   const { country, setCountry } = useCountry();
 
   // Dynamic hotlines object base on country selection
@@ -33,9 +32,9 @@ export default function Footer({ onNavigate }: FooterProps) {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-10 lg:gap-12">
           {/* Brand */}
           <div className="col-span-1 sm:col-span-2 lg:col-span-1">
-            <button
-              onClick={() => onNavigate('home')}
-              className="flex items-center gap-3 mb-5 cursor-pointer group text-left"
+            <Link
+              href="/"
+              className="flex items-center gap-3 mb-5 cursor-pointer group text-left inline-flex"
               aria-label="PetSafe Eats Home"
             >
               <div className="w-11 h-11 bg-gradient-to-br from-safe to-brand rounded-xl flex items-center justify-center group-hover:scale-105 transition-transform">
@@ -44,7 +43,7 @@ export default function Footer({ onNavigate }: FooterProps) {
               <span className="text-xl font-bold">
                 PetSafe<span className="text-safe">Eats</span>
               </span>
-            </button>
+            </Link>
             <p className="text-sm text-white/60 leading-relaxed mb-5">
               Your trusted resource for pet food safety. Expert-verified information to keep your furry friends safe and healthy.
             </p>
@@ -59,18 +58,18 @@ export default function Footer({ onNavigate }: FooterProps) {
             <h4 className="font-semibold text-sm uppercase tracking-wider text-white/80 mb-5">Quick Links</h4>
             <ul className="space-y-3">
               {[
-                { label: 'Home', page: 'home' },
-                { label: 'Dogs', page: 'pet', data: { pet: 'dogs' } },
-                { label: 'Cats', page: 'pet', data: { pet: 'cats' } },
-                { label: 'All Foods', page: 'foods' },
+                { label: 'Home', path: '/' },
+                { label: 'Dogs', path: '/dogs' },
+                { label: 'Cats', path: '/cats' },
+                { label: 'All Foods', path: '/foods' },
               ].map(item => (
                 <li key={item.label}>
-                  <button
-                    onClick={() => onNavigate(item.page, item.data)}
-                    className="text-sm text-white/60 hover:text-safe transition-colors cursor-pointer text-left"
+                  <Link
+                    href={item.path}
+                    className="text-sm text-white/60 hover:text-safe transition-colors cursor-pointer text-left inline-block"
                   >
                     {item.label}
-                  </button>
+                  </Link>
                 </li>
               ))}
             </ul>

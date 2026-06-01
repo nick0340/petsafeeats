@@ -1,23 +1,23 @@
+"use client";
+
 import { useState } from 'react';
+import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 import { Menu, X, PawPrint, Heart, ChevronRight } from 'lucide-react';
 import { useCountry, type CountryCode } from '../utils/countryStore';
 
-interface HeaderProps {
-  onNavigate: (page: string, data?: Record<string, string>) => void;
-  currentPage: string;
-}
-
-export default function Header({ onNavigate, currentPage }: HeaderProps) {
+export default function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const { country, setCountry } = useCountry();
+  const pathname = usePathname();
 
   return (
     <header className="sticky top-0 z-50 bg-white/95 backdrop-blur-md border-b border-slate-100 shadow-sm">
       <div className="container-main">
         <div className="flex items-center justify-between h-14 sm:h-16">
           {/* Logo */}
-          <button
-            onClick={() => onNavigate('home')}
+          <Link
+            href="/"
             className="flex items-center gap-2.5 group cursor-pointer flex-shrink-0"
             aria-label="PetSafe Eats Home"
           >
@@ -30,32 +30,32 @@ export default function Header({ onNavigate, currentPage }: HeaderProps) {
               </span>
               <span className="text-[10px] text-text-muted font-medium -mt-0.5 hidden sm:block">Pet Food Safety Guide</span>
             </div>
-          </button>
+          </Link>
 
           {/* Desktop Nav — clean: just All Foods */}
           <nav className="hidden md:flex items-center gap-1" role="navigation" aria-label="Main navigation">
-            <button
-              onClick={() => onNavigate('home')}
+            <Link
+              href="/"
               className={`flex items-center justify-center px-4 py-2 rounded-xl text-sm font-medium transition-all cursor-pointer ${
-                currentPage === 'home'
+                pathname === '/'
                   ? 'bg-brand/10 text-brand'
                   : 'text-text-secondary hover:text-text-primary hover:bg-slate-50'
               }`}
-              aria-current={currentPage === 'home' ? 'page' : undefined}
+              aria-current={pathname === '/' ? 'page' : undefined}
             >
               Home
-            </button>
-            <button
-              onClick={() => onNavigate('foods')}
+            </Link>
+            <Link
+              href="/foods"
               className={`flex items-center justify-center px-4 py-2 rounded-xl text-sm font-medium transition-all cursor-pointer ${
-                currentPage === 'foods'
+                pathname === '/foods'
                   ? 'bg-brand/10 text-brand'
                   : 'text-text-secondary hover:text-text-primary hover:bg-slate-50'
               }`}
-              aria-current={currentPage === 'foods' ? 'page' : undefined}
+              aria-current={pathname === '/foods' ? 'page' : undefined}
             >
               All Foods
-            </button>
+            </Link>
           </nav>
 
           {/* Right side: CTA + mobile hamburger */}
@@ -80,14 +80,14 @@ export default function Header({ onNavigate, currentPage }: HeaderProps) {
               </div>
             </div>
 
-            <button
-              onClick={() => onNavigate('home')}
+            <Link
+              href="/"
               className="hidden sm:flex items-center justify-center gap-2 bg-gradient-to-r from-brand to-safe text-white px-5 py-2.5 rounded-xl text-sm font-semibold hover:shadow-lg hover:scale-105 transition-all cursor-pointer"
               aria-label="Save a Pet"
             >
               <Heart className="w-4 h-4" aria-hidden="true" />
               <span>Save a Pet</span>
-            </button>
+            </Link>
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
               className="md:hidden flex items-center justify-center w-9 h-9 rounded-xl hover:bg-slate-50 transition-colors cursor-pointer"
@@ -111,19 +111,20 @@ export default function Header({ onNavigate, currentPage }: HeaderProps) {
         >
           <div className="container-main py-3 space-y-1">
             {[
-              { label: 'Home', page: 'home' },
-              { label: 'All Foods', page: 'foods' },
+              { label: 'Home', path: '/' },
+              { label: 'All Foods', path: '/foods' },
             ].map((item) => (
-              <button
+              <Link
                 key={item.label}
-                onClick={() => { onNavigate(item.page); setMobileMenuOpen(false); }}
+                href={item.path}
+                onClick={() => setMobileMenuOpen(false)}
                 className={`w-full text-left px-4 py-3 rounded-xl text-sm font-medium transition-all cursor-pointer flex items-center justify-between ${
-                  currentPage === item.page ? 'bg-brand/10 text-brand' : 'text-text-secondary hover:text-text-primary hover:bg-slate-50'
+                  pathname === item.path ? 'bg-brand/10 text-brand' : 'text-text-secondary hover:text-text-primary hover:bg-slate-50'
                 }`}
               >
                 {item.label}
                 <ChevronRight className="w-4 h-4 opacity-40" aria-hidden="true" />
-              </button>
+              </Link>
             ))}
             
             {/* Mobile Country Selector */}
@@ -150,13 +151,14 @@ export default function Header({ onNavigate, currentPage }: HeaderProps) {
             </div>
 
             <div className="pt-2">
-              <button
-                onClick={() => { onNavigate('home'); setMobileMenuOpen(false); }}
+              <Link
+                href="/"
+                onClick={() => setMobileMenuOpen(false)}
                 className="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-brand to-safe text-white px-4 py-3 rounded-xl text-sm font-semibold cursor-pointer"
               >
                 <Heart className="w-4 h-4" aria-hidden="true" />
                 Save a Pet
-              </button>
+              </Link>
             </div>
           </div>
         </div>

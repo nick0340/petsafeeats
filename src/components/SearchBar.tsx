@@ -1,11 +1,14 @@
+"use client";
+
 import { useState, useRef, useEffect, useCallback } from 'react';
+import { useRouter } from 'next/navigation';
 import { Search, X, TrendingUp, AlertCircle } from 'lucide-react';
 import { foodDatabase, getPetData, type FoodItem, type PetType } from '../data/foods';
 import PetSwitcher from './PetSwitcher';
 import { getPetById } from '../data/pets';
 
 interface SearchBarProps {
-  onSelect: (food: FoodItem, pet: PetType) => void;
+  currentPet?: PetType;
   variant?: 'hero' | 'sticky';
   showTrending?: boolean;
 }
@@ -18,14 +21,20 @@ const trendingSearches = [
   { name: 'Avocado', emoji: '🥑', slug: 'avocado' },
 ];
 
-export default function SearchBar({ onSelect, variant = 'hero', showTrending = true }: SearchBarProps) {
+export default function SearchBar({ currentPet = 'dogs', variant = 'hero', showTrending = true }: SearchBarProps) {
+  const router = useRouter();
   const [query, setQuery] = useState('');
   const [results, setResults] = useState<FoodItem[]>([]);
   const [isOpen, setIsOpen] = useState(false);
-  const [selectedPet, setSelectedPet] = useState<PetType>('dogs');
+  const [selectedPet, setSelectedPet] = useState<PetType>(currentPet);
   const [highlightedIndex, setHighlightedIndex] = useState(-1);
   const inputRef = useRef<HTMLInputElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
+
+  // Sync selectedPet when currentPet prop changes (e.g., when navigating to a different pet page)
+  useEffect(() => {
+    setSelectedPet(currentPet);
+  }, [currentPet]);
 
   // Real-time filtering with case insensitivity
   const performSearch = useCallback((searchQuery: string) => {
@@ -68,7 +77,7 @@ export default function SearchBar({ onSelect, variant = 'hero', showTrending = t
     setResults(found);
     setIsOpen(true);
     setHighlightedIndex(-1);
-  }, []);
+  }, [selectedPet]);
 
   // Handle input change with real-time filtering
   useEffect(() => {
@@ -105,7 +114,7 @@ export default function SearchBar({ onSelect, variant = 'hero', showTrending = t
         e.preventDefault();
         if (highlightedIndex >= 0 && results[highlightedIndex]) {
           handleSelectFood(results[highlightedIndex]);
-        } else if (results.length === 1) {
+        } else if (results.length > 0) { // Fix bug: navigate to first result if none highlighted
           handleSelectFood(results[0]);
         }
         break;
@@ -116,10 +125,10 @@ export default function SearchBar({ onSelect, variant = 'hero', showTrending = t
     }
   };
 
-  // Handle food selection
+  // Handle food selection - navigate with Next.js router
   const handleSelectFood = (food: FoodItem) => {
     if (!getPetById(selectedPet).hasFullData) return;
-    onSelect(food, selectedPet);
+    router.push(`/can-${selectedPet}-eat-${food.slug}`);
     setQuery('');
     setIsOpen(false);
     setHighlightedIndex(-1);
